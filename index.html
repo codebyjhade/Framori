@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High-Res Posting-Layout Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="container">
+            <header class="header">
+                <h1>HD Layout Generator</h1>
+                <p>Upload your transparent frame, then drop your photos. We scale the final output to match your photo's maximum resolution.</p>
+            </header>
+
+            <div class="upload-section">
+                <div class="template-upload-box" onclick="document.getElementById('template-input').click()">
+                    <i class="fas fa-layer-group icon"></i>
+                    <h3>Step 1: Upload Layout Template</h3>
+                    <p class="helper-text">Click to browse for a transparent PNG frame.</p>
+                    <input type="file" id="template-input" accept="image/png" style="display: none;">
+                    <div id="template-status">Waiting for template...</div>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <div id="drop-zone" class="locked">
+                    <i class="fas fa-images icon"></i>
+                    <h3>Step 2: Upload High-Res Photos</h3>
+                    <p class="helper-text">Drop your camera photos here or click to browse.</p>
+                    <input type="file" id="file-input" multiple accept="image/jpeg, image/png" style="display: none;">
+                </div>
+            </div>
+            
+            <div id="status-area"></div>
+            <progress id="progress-bar" value="0" max="100" style="display: none;"></progress>
+
+            <div class="controls">
+                <button id="reset-btn" class="btn-secondary"><i class="fas fa-undo"></i> Clear</button>
+                <button id="generate-btn" class="btn-primary" disabled><i class="fas fa-download"></i> Generate High-Res .ZIP</button>
+            </div>
+
+            <div class="preview-container">
+                <h2 id="gallery-title" style="display: none;">Live Preview</h2>
+                <div id="preview-gallery"></div>
+            </div>
+
+            <canvas id="canvas" style="display: none;"></canvas>
+        </div> 
+        <footer class="site-footer">
+            <p>Designed & Developed by <strong>BRYAN JHADE EBUAN</strong> | &copy; 2026</p>
+        </footer>
+
+    </div> <script src="script.js"></script>
+</body>
+</html>
