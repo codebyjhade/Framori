@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    const templateDropZone = document.getElementById('template-drop-zone'); // New
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     const templateInput = document.getElementById('template-input');
@@ -16,10 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let uploadedFiles = [];
     let customTemplate = null;
 
-    // STEP 1: Handle Custom Layout Upload & Check Transparency
-    templateInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    // STEP 1: Handle Custom Layout Upload (Now supports Drag & Drop!)
+    function processTemplateFile(file) {
+        if (!file || !file.type.startsWith('image/')) return;
 
         templateStatus.innerHTML = `<span style="color: #f57c00;"><i class="fas fa-spinner fa-spin"></i> Scanning image for transparency...</span>`;
 
@@ -47,24 +47,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (!hasTransparency) {
-                    templateStatus.innerHTML = `❌ <b>Error:</b> No transparency detected! This image is completely solid and will hide your photos. Please upload a PNG with a transparent background cutout.`;
+                    templateStatus.innerHTML = `❌ <b>Error:</b> No transparency detected! Please upload a PNG with a transparent cutout.`;
                     templateStatus.style.color = '#d32f2f';
                     dropZone.classList.add('locked');
                     return;
                 }
 
-                // Save template. We no longer set the final canvas size here!
-                // We will set the canvas size dynamically based on the high-res photo later.
                 customTemplate = img;
                 
                 let orientation = "Square";
                 if (img.width > img.height) orientation = "Landscape";
                 if (img.height > img.width) orientation = "Portrait";
 
-                templateStatus.innerHTML = `✅ Template approved! Base Aspect Ratio: <b>${orientation}</b>.<br><small>Output will scale automatically to match your high-res photos.</small>`;
+                templateStatus.innerHTML = `✅ Template approved! Base Aspect Ratio: <b>${orientation}</b>.`;
                 templateStatus.style.color = '#2e7d32';
                 
                 dropZone.classList.remove('locked');
+
+                // If photos are already uploaded, re-render them with the new template!
+                if (uploadedFiles.length > 0) {
+                    renderGallery();
+                }
             };
             
             img.onerror = () => {
@@ -74,30 +77,43 @@ document.addEventListener('DOMContentLoaded', () => {
             img.src = event.target.result;
         };
         reader.readAsDataURL(file);
-    });
-
-    function initializeState() {
-        uploadedFiles = [];
-        previewGallery.innerHTML = '';
-        statusArea.textContent = '';
-        generateBtn.disabled = true;
-        fileInput.value = ''; 
-        progressBar.style.display = 'none';
-        galleryTitle.style.display = 'none';
     }
 
-    // STEP 2: Handle Uploading Photos & Show True Preview
+    // Template Event Listeners (Click & Drag/Drop)
+    templateInput.addEventListener('change', (e) => processTemplateFile(e.target.files[0]));
+    
+    templateDropZone.addEventListener('dragover', (e) => { e.preventDefault(); templateDropZone.classList.add('dragover'); });
+    templateDropZone.addEventListener('dragleave', () => templateDropZone.classList.remove('dragover'));
+    templateDropZone.addEventListener('drop', (e) => { 
+        e.preventDefault(); 
+        templateDropZone.classList.remove('dragover'); 
+        // Only grab the FIRST file dropped, ignoring any others
+        if (e.dataTransfer.files.length > 0) {
+            processTemplateFile(e.dataTransfer.files[0]);
+        }
+    });
+
+
+    // STEP 2: Handle Uploading Photos (Now Cumulative!)
     function handleFiles(files) {
         if (!customTemplate) {
             alert("Please upload a valid layout template first!");
             return;
         }
 
-        initializeState();
-        const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-        if (imageFiles.length === 0) return;
+        const newImageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+        if (newImageFiles.length === 0) return;
 
-        uploadedFiles = imageFiles;
+        // THE FIX: Add new files to the existing array instead of replacing it
+        uploadedFiles = [...uploadedFiles, ...newImageFiles];
+
+        renderGallery();
+    }
+
+    // Separate function to draw the gallery so we can update it anytime
+    function renderGallery() {
+        previewGallery.innerHTML = ''; // Clear visual gallery before re-drawing
+        
         statusArea.textContent = `${uploadedFiles.length} photo(s) are ready to be processed.`;
         generateBtn.disabled = false;
         galleryTitle.style.display = 'block';
@@ -126,6 +142,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Reset just the photo area
+    function clearPhotos() {
+        uploadedFiles = [];
+        previewGallery.innerHTML = '';
+        statusArea.textContent = '';
+        generateBtn.disabled = true;
+        fileInput.value = ''; 
+        progressBar.style.display = 'none';
+        galleryTitle.style.display = 'none';
+    }
+
+
     function loadImage(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -140,17 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // THE FIX: High-Resolution Dynamic Canvas Sizing
+    // High-Resolution Dynamic Canvas Sizing
     function drawCoverImage(img) {
-        // Calculate the scale needed to ensure the photo is NOT downscaled.
-        // We find the scale factor comparing the photo to the template.
         const scaleX = img.width / customTemplate.width;
         const scaleY = img.height / customTemplate.height;
-        
-        // Use the largest scale to preserve maximum quality, ensuring it doesn't shrink below template size
         const maxScale = Math.max(scaleX, scaleY, 1);
 
-        // Dynamically resize the invisible drawing canvas to be massive
         canvas.width = customTemplate.width * maxScale;
         canvas.height = customTemplate.height * maxScale;
 
@@ -159,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const imgAspectRatio = img.width / img.height;
         let drawWidth, drawHeight, drawX, drawY;
 
-        // Smart Crop Math - now processing on a high-res canvas
         if (imgAspectRatio > canvasAspectRatio) {
             drawHeight = canvas.height;
             drawWidth = drawHeight * imgAspectRatio;
@@ -172,10 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
             drawY = -(drawHeight - canvas.height) / 2;
         }
 
-        // 1. Draw the high-res photo
         ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
         
-        // 2. Draw the template stretched over the new massive canvas
         if (customTemplate) {
             ctx.drawImage(customTemplate, 0, 0, canvas.width, canvas.height);
         }
@@ -200,8 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const image = await loadImage(file);
                 drawCoverImage(image);
                
-                // Using JPEG output with high quality instead of PNG because full-res Canon PNGs 
-                // will crash the browser memory and result in massive 30MB+ files.
                 const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
                 const fileName = `layout_${String(i + 1).padStart(3, '0')}.jpg`;
                 zip.file(fileName, blob);
@@ -212,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        statusArea.textContent = "Zipping high-res files... please wait (this may take a moment).";
+        statusArea.textContent = "Zipping high-res files... please wait.";
         progressBar.removeAttribute('value');
 
         zip.generateAsync({ type: "blob" })
@@ -230,15 +248,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // Event Listeners
+    // Photo Event Listeners
     dropZone.addEventListener('click', () => { if (!dropZone.classList.contains('locked')) fileInput.click(); });
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); if (!dropZone.classList.contains('locked')) dropZone.classList.add('dragover'); });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
     dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); if (!dropZone.classList.contains('locked')) handleFiles(e.dataTransfer.files); });
     
     fileInput.addEventListener('change', () => handleFiles(fileInput.files));
-    resetBtn.addEventListener('click', initializeState);
+    
+    resetBtn.addEventListener('click', clearPhotos);
     generateBtn.addEventListener('click', generateAndZipFiles);
-
-    initializeState();
 });

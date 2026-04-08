@@ -20,10 +20,11 @@
             </header>
 
             <div class="upload-section">
-                <div class="template-upload-box" onclick="document.getElementById('template-input').click()">
+                <!-- Added ID here for drag and drop -->
+                <div class="template-upload-box" id="template-drop-zone" onclick="document.getElementById('template-input').click()">
                     <i class="fas fa-layer-group icon"></i>
                     <h3>Step 1: Upload Layout Template</h3>
-                    <p class="helper-text">Click to browse for a transparent PNG frame.</p>
+                    <p class="helper-text">Drop your transparent PNG frame here or click to browse.</p>
                     <input type="file" id="template-input" accept="image/png" style="display: none;">
                     <div id="template-status">Waiting for template...</div>
                 </div>
@@ -33,7 +34,7 @@
                 <div id="drop-zone" class="locked">
                     <i class="fas fa-images icon"></i>
                     <h3>Step 2: Upload High-Res Photos</h3>
-                    <p class="helper-text">Drop your camera photos here or click to browse.</p>
+                    <p class="helper-text">Drop photos here. Drop more later to add to the batch!</p>
                     <input type="file" id="file-input" multiple accept="image/jpeg, image/png" style="display: none;">
                 </div>
             </div>
@@ -42,7 +43,7 @@
             <progress id="progress-bar" value="0" max="100" style="display: none;"></progress>
 
             <div class="controls">
-                <button id="reset-btn" class="btn-secondary"><i class="fas fa-undo"></i> Clear</button>
+                <button id="reset-btn" class="btn-secondary"><i class="fas fa-undo"></i> Clear Photos</button>
                 <button id="generate-btn" class="btn-primary" disabled><i class="fas fa-download"></i> Generate High-Res .ZIP</button>
             </div>
 

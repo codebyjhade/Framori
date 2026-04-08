@@ -108,7 +108,8 @@ body {
     border-color: #cbd5e1;
 }
 
-#drop-zone.dragover {
+/* Update this specific block in your style.css */
+#template-drop-zone.dragover, #drop-zone.dragover {
     background-color: #ffffff;
     border-color: #06b6d4;
 }
