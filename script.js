@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(content);
                 // Download file name is set here!
-                link.download = "Odizee_Council_Photos.zip"; 
+                link.download = "LucasAndLilysFarmhouse.zip"; 
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
