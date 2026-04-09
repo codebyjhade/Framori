@@ -16,17 +16,17 @@
         <div class="container">
             <header class="header">
                 <h1>HD Layout Generator</h1>
-                <p>Upload your transparent frame, then drop your photos. We scale the final output to match your photo's maximum resolution.</p>
+                <p>Upload your templates, then drop your photos. We automatically sort and scale everything to maximum resolution.</p>
             </header>
 
             <div class="upload-section">
-                <!-- Added ID here for drag and drop -->
+                <!-- Template uploader now accepts multiple files -->
                 <div class="template-upload-box" id="template-drop-zone" onclick="document.getElementById('template-input').click()">
                     <i class="fas fa-layer-group icon"></i>
-                    <h3>Step 1: Upload Layout Template</h3>
-                    <p class="helper-text">Drop your transparent PNG frame here or click to browse.</p>
-                    <input type="file" id="template-input" accept="image/png" style="display: none;">
-                    <div id="template-status">Waiting for template...</div>
+                    <h3>Step 1: Upload Layout Template(s)</h3>
+                    <p class="helper-text">Drop your <b>Portrait</b> and/or <b>Landscape</b> transparent PNG frames here.</p>
+                    <input type="file" id="template-input" multiple accept="image/png" style="display: none;">
+                    <div id="template-status">Waiting for templates...</div>
                 </div>
             </div>
 
@@ -34,7 +34,7 @@
                 <div id="drop-zone" class="locked">
                     <i class="fas fa-images icon"></i>
                     <h3>Step 2: Upload High-Res Photos</h3>
-                    <p class="helper-text">Drop photos here. Drop more later to add to the batch!</p>
+                    <p class="helper-text">Drop photos here. We will auto-detect their orientation and apply the correct layout!</p>
                     <input type="file" id="file-input" multiple accept="image/jpeg, image/png" style="display: none;">
                 </div>
             </div>

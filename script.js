@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    const templateDropZone = document.getElementById('template-drop-zone'); // New
+    const templateDropZone = document.getElementById('template-drop-zone'); 
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     const templateInput = document.getElementById('template-input');
@@ -15,134 +15,190 @@ document.addEventListener('DOMContentLoaded', () => {
     const galleryTitle = document.getElementById('gallery-title');
 
     let uploadedFiles = [];
-    let customTemplate = null;
+    
+    // NEW: Store both templates
+    let templates = {
+        landscape: null,
+        portrait: null
+    };
 
-    // STEP 1: Handle Custom Layout Upload (Now supports Drag & Drop!)
-    function processTemplateFile(file) {
-        if (!file || !file.type.startsWith('image/')) return;
+    // STEP 1: Handle Multiple Custom Layout Uploads
+    function processTemplateFiles(files) {
+        const fileArray = Array.from(files).filter(file => file.type.startsWith('image/'));
+        if (fileArray.length === 0) return;
 
-        templateStatus.innerHTML = `<span style="color: #f57c00;"><i class="fas fa-spinner fa-spin"></i> Scanning image for transparency...</span>`;
+        templateStatus.innerHTML = `<span style="color: #f57c00;"><i class="fas fa-spinner fa-spin"></i> Analyzing templates...</span>`;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                
-                // Transparency Check
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = img.width;
-                tempCanvas.height = img.height;
-                const tempCtx = tempCanvas.getContext('2d');
-                tempCtx.drawImage(img, 0, 0);
+        let loadedCount = 0;
 
-                const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-                const pixels = imageData.data;
-                let hasTransparency = false;
+        fileArray.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    
+                    // Transparency Check
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = img.width;
+                    tempCanvas.height = img.height;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.drawImage(img, 0, 0);
 
-                for (let i = 3; i < pixels.length; i += 4) {
-                    if (pixels[i] < 255) {
-                        hasTransparency = true;
-                        break;
+                    const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                    const pixels = imageData.data;
+                    let hasTransparency = false;
+
+                    for (let i = 3; i < pixels.length; i += 4) {
+                        if (pixels[i] < 255) {
+                            hasTransparency = true;
+                            break;
+                        }
                     }
-                }
 
-                if (!hasTransparency) {
-                    templateStatus.innerHTML = `❌ <b>Error:</b> No transparency detected! Please upload a PNG with a transparent cutout.`;
-                    templateStatus.style.color = '#d32f2f';
-                    dropZone.classList.add('locked');
-                    return;
-                }
+                    if (!hasTransparency) {
+                        alert(`❌ Error: ${file.name} has no transparency! Skipping this file.`);
+                    } else {
+                        // SORT THE TEMPLATES BY ORIENTATION
+                        if (img.width >= img.height) {
+                            templates.landscape = img;
+                        } else {
+                            templates.portrait = img;
+                        }
+                    }
 
-                customTemplate = img;
-                
-                let orientation = "Square";
-                if (img.width > img.height) orientation = "Landscape";
-                if (img.height > img.width) orientation = "Portrait";
-
-                templateStatus.innerHTML = `✅ Template approved! Base Aspect Ratio: <b>${orientation}</b>.`;
-                templateStatus.style.color = '#2e7d32';
-                
-                dropZone.classList.remove('locked');
-
-                // If photos are already uploaded, re-render them with the new template!
-                if (uploadedFiles.length > 0) {
-                    renderGallery();
-                }
+                    loadedCount++;
+                    if (loadedCount === fileArray.length) {
+                        updateTemplateStatusUI();
+                    }
+                };
+                img.src = event.target.result;
             };
-            
-            img.onerror = () => {
-                templateStatus.innerHTML = `❌ Error loading template. Please ensure it's a valid PNG image.`;
-                templateStatus.style.color = '#d32f2f';
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
+            reader.readAsDataURL(file);
+        });
     }
 
-    // Template Event Listeners (Click & Drag/Drop)
-    templateInput.addEventListener('change', (e) => processTemplateFile(e.target.files[0]));
-    
+    function updateTemplateStatusUI() {
+        let html = '';
+        if (templates.landscape) {
+            html += `<div style="color: #2e7d32; margin-top: 5px;">✅ <b>Landscape</b> Layout Ready</div>`;
+        }
+        if (templates.portrait) {
+            html += `<div style="color: #2e7d32; margin-top: 5px;">✅ <b>Portrait</b> Layout Ready</div>`;
+        }
+        
+        if (html === '') {
+            templateStatus.innerHTML = `❌ No valid transparent templates loaded.`;
+            templateStatus.style.color = '#d32f2f';
+        } else {
+            html += `<div style="font-size: 0.85em; color: #475569; margin-top: 8px;">Photos will automatically sort to fit available layouts.</div>`;
+            templateStatus.innerHTML = html;
+            dropZone.classList.remove('locked');
+            
+            // Re-render if templates change mid-session
+            if (uploadedFiles.length > 0) {
+                // Re-evaluate template choices for existing photos
+                uploadedFiles.forEach(item => {
+                    item.template = (item.isLandscape && templates.landscape) ? templates.landscape : 
+                                    (!item.isLandscape && templates.portrait) ? templates.portrait : 
+                                    (templates.landscape || templates.portrait);
+                });
+                renderGallery();
+            }
+        }
+    }
+
+    // Template Event Listeners
+    templateInput.addEventListener('change', (e) => processTemplateFiles(e.target.files));
     templateDropZone.addEventListener('dragover', (e) => { e.preventDefault(); templateDropZone.classList.add('dragover'); });
     templateDropZone.addEventListener('dragleave', () => templateDropZone.classList.remove('dragover'));
     templateDropZone.addEventListener('drop', (e) => { 
         e.preventDefault(); 
         templateDropZone.classList.remove('dragover'); 
-        // Only grab the FIRST file dropped, ignoring any others
-        if (e.dataTransfer.files.length > 0) {
-            processTemplateFile(e.dataTransfer.files[0]);
-        }
+        processTemplateFiles(e.dataTransfer.files);
     });
 
-
-    // STEP 2: Handle Uploading Photos (Now Cumulative!)
-    function handleFiles(files) {
-        if (!customTemplate) {
-            alert("Please upload a valid layout template first!");
+    // STEP 2: Handle Uploading & Sorting Photos
+    async function handleFiles(files) {
+        if (!templates.landscape && !templates.portrait) {
+            alert("Please upload at least one layout template first!");
             return;
         }
 
         const newImageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
         if (newImageFiles.length === 0) return;
 
-        // THE FIX: Add new files to the existing array instead of replacing it
-        uploadedFiles = [...uploadedFiles, ...newImageFiles];
+        statusArea.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Sorting photos by orientation...`;
+
+        // Pre-load images to detect orientation before they enter the gallery
+        for (let file of newImageFiles) {
+            try {
+                const img = await loadImage(file);
+                const isLandscape = img.width >= img.height;
+                
+                // Assign the perfect template, or fallback to whatever template is available
+                let bestTemplate = null;
+                if (isLandscape && templates.landscape) bestTemplate = templates.landscape;
+                else if (!isLandscape && templates.portrait) bestTemplate = templates.portrait;
+                else bestTemplate = templates.landscape || templates.portrait;
+
+                uploadedFiles.push({
+                    file: file,
+                    img: img,
+                    isLandscape: isLandscape,
+                    template: bestTemplate
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
 
         renderGallery();
     }
 
-    // Separate function to draw the gallery so we can update it anytime
     function renderGallery() {
-        previewGallery.innerHTML = ''; // Clear visual gallery before re-drawing
+        previewGallery.innerHTML = ''; 
         
-        statusArea.textContent = `${uploadedFiles.length} photo(s) are ready to be processed.`;
+        statusArea.innerHTML = `✅ ${uploadedFiles.length} photo(s) sorted and ready.`;
         generateBtn.disabled = false;
         galleryTitle.style.display = 'block';
         
-        const templateRatio = customTemplate.width / customTemplate.height;
-        
-        uploadedFiles.forEach(file => {
+        uploadedFiles.forEach(item => {
             const container = document.createElement('div');
             container.classList.add('preview-item');
+            
+            const templateRatio = item.template.width / item.template.height;
             
             container.style.width = '200px';
             container.style.height = `${200 / templateRatio}px`;
 
             const sourceImg = document.createElement('img');
             sourceImg.classList.add('source-img');
-            sourceImg.src = URL.createObjectURL(file);
-            sourceImg.onload = () => URL.revokeObjectURL(sourceImg.src); 
+            sourceImg.src = item.img.src; // Using the pre-loaded image data
 
             const overlayImg = document.createElement('img');
             overlayImg.classList.add('overlay-img');
-            overlayImg.src = customTemplate.src; 
+            overlayImg.src = item.template.src; 
+
+            // Add an orientation label to the preview box
+            const badge = document.createElement('div');
+            badge.style.position = 'absolute';
+            badge.style.bottom = '8px';
+            badge.style.right = '8px';
+            badge.style.backgroundColor = 'rgba(15, 23, 42, 0.85)'; 
+            badge.style.color = '#fff';
+            badge.style.padding = '4px 8px';
+            badge.style.borderRadius = '6px';
+            badge.style.fontSize = '0.75rem';
+            badge.style.fontWeight = '600';
+            badge.innerText = item.isLandscape ? 'Landscape' : 'Portrait';
 
             container.appendChild(sourceImg);
             container.appendChild(overlayImg);
+            container.appendChild(badge);
             previewGallery.appendChild(container);
         });
     }
 
-    // Reset just the photo area
     function clearPhotos() {
         uploadedFiles = [];
         previewGallery.innerHTML = '';
@@ -153,29 +209,27 @@ document.addEventListener('DOMContentLoaded', () => {
         galleryTitle.style.display = 'none';
     }
 
-
     function loadImage(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => {
                 const img = new Image();
                 img.onload = () => resolve(img);
-                img.onerror = () => reject(`Image load error for: ${file.name}`);
+                img.onerror = () => reject(`Image load error`);
                 img.src = reader.result;
             };
-            reader.onerror = () => reject(`FileReader error for: ${file.name}`);
             reader.readAsDataURL(file);
         });
     }
 
-    // High-Resolution Dynamic Canvas Sizing
-    function drawCoverImage(img) {
-        const scaleX = img.width / customTemplate.width;
-        const scaleY = img.height / customTemplate.height;
+    // Pass the specific active template into the draw function
+    function drawCoverImage(img, activeTemplate) {
+        const scaleX = img.width / activeTemplate.width;
+        const scaleY = img.height / activeTemplate.height;
         const maxScale = Math.max(scaleX, scaleY, 1);
 
-        canvas.width = customTemplate.width * maxScale;
-        canvas.height = customTemplate.height * maxScale;
+        canvas.width = activeTemplate.width * maxScale;
+        canvas.height = activeTemplate.height * maxScale;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height); 
         const canvasAspectRatio = canvas.width / canvas.height;
@@ -195,15 +249,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
-        
-        if (customTemplate) {
-            ctx.drawImage(customTemplate, 0, 0, canvas.width, canvas.height);
-        }
+        ctx.drawImage(activeTemplate, 0, 0, canvas.width, canvas.height);
     }
 
     // STEP 3: Generate and Zip
     async function generateAndZipFiles() {
-        if (uploadedFiles.length === 0 || !customTemplate) return;
+        if (uploadedFiles.length === 0) return;
 
         generateBtn.disabled = true;
         resetBtn.disabled = true;
@@ -213,15 +264,17 @@ document.addEventListener('DOMContentLoaded', () => {
         progressBar.value = 0;
 
         for (let i = 0; i < uploadedFiles.length; i++) {
-            const file = uploadedFiles[i];
-            statusArea.textContent = `Processing image ${i + 1} of ${uploadedFiles.length}: ${file.name}`;
+            const item = uploadedFiles[i];
+            statusArea.textContent = `Processing image ${i + 1} of ${uploadedFiles.length}`;
             
             try {
-                const image = await loadImage(file);
-                drawCoverImage(image);
+                // Use the specifically assigned template for this photo
+                drawCoverImage(item.img, item.template);
                
                 const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
-                const fileName = `layout_${String(i + 1).padStart(3, '0')}.jpg`;
+                
+                // File name is set here! Change "layout_" to whatever you want.
+                const fileName = `odizee_${String(i + 1).padStart(3, '0')}.jpg`;
                 zip.file(fileName, blob);
 
                 progressBar.value = ((i + 1) / uploadedFiles.length) * 100;
@@ -237,18 +290,18 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(function(content) {
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(content);
-                link.download = "LucasAndLilysFarmhouse.zip";
+                // Download file name is set here!
+                link.download = "Odizee_Council_Photos.zip"; 
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 
-                statusArea.innerHTML = "✅ <b>All done! Your high-res .zip file has been downloaded.</b>";
+                statusArea.innerHTML = "✅ <b>All done! Your sorted, high-res .zip file has been downloaded.</b>";
                 resetBtn.disabled = false;
                 progressBar.style.display = 'none';
             });
     }
 
-    // Photo Event Listeners
     dropZone.addEventListener('click', () => { if (!dropZone.classList.contains('locked')) fileInput.click(); });
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); if (!dropZone.classList.contains('locked')) dropZone.classList.add('dragover'); });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
