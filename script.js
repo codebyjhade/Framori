@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
                 
                 // File name is set here! Change "layout_" to whatever you want.
-                const fileName = `odizee_${String(i + 1).padStart(3, '0')}.jpg`;
+                const fileName = `photo_${String(i + 1).padStart(3, '0')}.jpg`;
                 zip.file(fileName, blob);
 
                 progressBar.value = ((i + 1) / uploadedFiles.length) * 100;
