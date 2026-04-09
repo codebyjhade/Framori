@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(function(content) {
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(content);
-                link.download = "high_res_layouts.zip";
+                link.download = "LucasAndLilysFarmhouse.zip";
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
