@@ -9,6 +9,7 @@ const requiredFiles = [
     'script.js',
     'assets/favicon.svg',
     'site.webmanifest',
+    'vercel.json',
     'README.md',
     'PRIVACY.md',
     'LICENSE',
