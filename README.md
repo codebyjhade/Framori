@@ -43,7 +43,7 @@ The included GitHub Actions workflow deploys the project to GitHub Pages after a
 3. Under **Build and deployment**, select **GitHub Actions** as the source.
 4. Run the **Deploy Framori to GitHub Pages** workflow, or push to `main`.
 
-The expected project URL is `https://codebyjhade.github.io/layout-generator/`.
+The expected project URL is `https://codebyjhade.github.io/Framori/`.
 
 ## Privacy
 

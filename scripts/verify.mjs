@@ -29,7 +29,7 @@ const css = await readFile(new URL('style.css', projectRoot), 'utf8');
 const javascript = await readFile(new URL('script.js', projectRoot), 'utf8');
 const combined = `${html}\n${css}\n${javascript}`;
 
-for (const legacyName of ['FrameBatch', 'framebatch', 'FRAMEBATCH', 'HD Layout', 'LucasAnd']) {
+for (const legacyName of ['FrameBatch', 'framebatch', 'FRAMEBATCH', 'HD Layout', 'LucasAnd', 'layout-generator']) {
     if (combined.includes(legacyName)) failures.push(`Legacy brand reference remains: ${legacyName}`);
 }
 
