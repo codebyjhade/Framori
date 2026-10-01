@@ -1,0 +1,17 @@
+{
+  "name": "Framori — Batch Photo Framing",
+  "short_name": "Framori",
+  "description": "Apply branded PNG frames to batches of photos privately in your browser.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f7f3ed",
+  "theme_color": "#172033",
+  "icons": [
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

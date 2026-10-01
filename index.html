@@ -3,61 +3,388 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>High-Res Posting-Layout Generator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <meta name="description" content="Framori applies branded PNG frames to batches of photos privately in your browser. Free, fast, and no signup required.">
+    <meta name="author" content="Bryan Jhade Ebuan">
+    <meta name="keywords" content="batch photo framing, event photo frame, PNG overlay, photo branding, browser photo tool">
+    <meta name="theme-color" content="#172033">
+    <meta property="og:title" content="Framori — Brand every photo in one go">
+    <meta property="og:description" content="A free, private batch framing tool for events, organizations, and creative teams.">
+    <meta property="og:site_name" content="Framori">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://codebyjhade.github.io/layout-generator/">
+    <meta name="twitter:card" content="summary">
+    <link rel="canonical" href="https://codebyjhade.github.io/layout-generator/">
+    <title>Framori — Free Batch Photo Framing Tool</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="manifest" href="site.webmanifest">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="main-wrapper">
-        <div class="container">
-            <header class="header">
-                <h1>HD Layout Generator</h1>
-                <p>Upload your templates, then drop your photos. We automatically sort and scale everything to maximum resolution.</p>
-            </header>
+    <a class="skip-link" href="#workspace">Skip to the workspace</a>
 
-            <div class="upload-section">
-                <!-- Template uploader now accepts multiple files -->
-                <div class="template-upload-box" id="template-drop-zone" onclick="document.getElementById('template-input').click()">
-                    <i class="fas fa-layer-group icon"></i>
-                    <h3>Step 1: Upload Layout Template(s)</h3>
-                    <p class="helper-text">Drop your <b>Portrait</b> and/or <b>Landscape</b> transparent PNG frames here.</p>
-                    <input type="file" id="template-input" multiple accept="image/png" style="display: none;">
-                    <div id="template-status">Waiting for templates...</div>
+    <header class="site-header">
+        <a class="brand" href="#top" aria-label="Framori home">
+            <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 64 64"><path class="mark-back" d="M14 17h27a6 6 0 0 1 6 6v23H20a6 6 0 0 1-6-6Z"/><path class="mark-front" d="M23 12h27v23a6 6 0 0 1-6 6H17V18a6 6 0 0 1 6-6Z"/><circle cx="43" cy="19" r="3"/></svg></span>
+            <span>Framori</span>
+        </a>
+        <nav class="site-nav" aria-label="Main navigation">
+            <a href="#how-it-works">How it works</a>
+            <a href="#workspace">Workspace</a>
+            <a href="#privacy">Privacy</a>
+        </nav>
+        <a class="nav-cta" href="#workspace">Start framing</a>
+    </header>
+
+    <main id="top">
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-copy">
+                <p class="eyebrow"><span aria-hidden="true"></span> Made for busy creative teams</p>
+                <h1 id="hero-title">Brand every photo.<br><em>In one go.</em></h1>
+                <p class="hero-lead">Drop in your event frames and photos. Framori matches every orientation, builds crisp final images, and packs them into one ready-to-share ZIP.</p>
+                <div class="hero-actions">
+                    <a class="button button-primary" href="#workspace">
+                        Open the workspace
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                    </a>
+                    <a class="text-link" href="#how-it-works">See how it works</a>
+                </div>
+                <ul class="trust-list" aria-label="Product benefits">
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg> Free to use</li>
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg> No signup</li>
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg> Photos stay private</li>
+                </ul>
+            </div>
+
+            <div class="hero-showcase" aria-hidden="true">
+                <div class="showcase-orbit orbit-one"></div>
+                <div class="showcase-orbit orbit-two"></div>
+                <div class="showcase-card showcase-back">
+                    <div class="mock-photo mock-photo-one"></div>
+                    <div class="mock-frame"><span>COMMUNITY<br>DAY</span><small>2026</small></div>
+                </div>
+                <div class="showcase-card showcase-front">
+                    <div class="mock-photo mock-photo-two"></div>
+                    <div class="mock-frame"><span>CREATE<br>TOGETHER</span><small>FRAMORI</small></div>
+                </div>
+                <div class="floating-pill pill-privacy">
+                    <svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.9 8.8 7 10 4.1-1.2 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+                    Processed locally
+                </div>
+                <div class="floating-pill pill-count">24 photos ready</div>
+            </div>
+        </section>
+
+        <section class="how-section" id="how-it-works" aria-labelledby="how-title">
+            <div class="section-heading">
+                <p class="section-kicker">Simple by design</p>
+                <h2 id="how-title">From camera roll to campaign-ready</h2>
+                <p>No complicated editor, account, or cloud upload. Just a focused workflow that gets the repetitive work done.</p>
+            </div>
+            <div class="how-grid">
+                <article class="how-card">
+                    <span class="step-number">01</span>
+                    <div class="how-icon coral">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m7 16 4-4 3 3 3-3 3 3"/></svg>
+                    </div>
+                    <h3>Add your frames</h3>
+                    <p>Upload transparent PNG artwork for portrait, landscape, or both.</p>
+                </article>
+                <article class="how-card featured">
+                    <span class="step-number">02</span>
+                    <div class="how-icon violet">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 4v6M17 4v6M5 12h6v7H5zM14 12h5v3h-5zM14 17h5v2h-5z"/></svg>
+                    </div>
+                    <h3>Drop your photos</h3>
+                    <p>Framori detects orientation and pairs every photo with the correct artwork.</p>
+                </article>
+                <article class="how-card">
+                    <span class="step-number">03</span>
+                    <div class="how-icon mint">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14"/></svg>
+                    </div>
+                    <h3>Download once</h3>
+                    <p>Review the matched previews and export all finished photos in one ZIP.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="workspace-shell" id="workspace" aria-labelledby="workspace-title">
+            <div class="workspace-heading">
+                <div>
+                    <p class="section-kicker">Your workspace</p>
+                    <h2 id="workspace-title">Build your photo batch</h2>
+                    <p>Everything happens in this browser tab. Your images are never uploaded.</p>
+                </div>
+                <div class="privacy-chip">
+                    <span class="privacy-dot" aria-hidden="true"></span>
+                    Private session
                 </div>
             </div>
 
-            <div class="upload-section">
-                <div id="drop-zone" class="locked">
-                    <i class="fas fa-images icon"></i>
-                    <h3>Step 2: Upload High-Res Photos</h3>
-                    <p class="helper-text">Drop photos here. We will auto-detect their orientation and apply the correct layout!</p>
-                    <input type="file" id="file-input" multiple accept="image/jpeg, image/png" style="display: none;">
+            <ol class="workspace-steps" aria-label="Workspace steps">
+                <li class="is-active" data-workspace-step="0"><span>1</span><div><strong>Frames</strong><small>Add your PNG artwork</small></div></li>
+                <li data-workspace-step="1"><span>2</span><div><strong>Photos</strong><small>Add JPG or PNG files</small></div></li>
+                <li data-workspace-step="2"><span>3</span><div><strong>Review</strong><small>Check every match</small></div></li>
+                <li data-workspace-step="3"><span>4</span><div><strong>Export</strong><small>Download one ZIP</small></div></li>
+            </ol>
+
+            <div class="tool-panel">
+                <section class="tool-section" aria-labelledby="frames-heading">
+                    <div class="tool-section-heading">
+                        <span class="tool-section-number">1</span>
+                        <div>
+                            <h3 id="frames-heading">Add your transparent frames</h3>
+                            <p>Use one frame for each orientation you need.</p>
+                        </div>
+                    </div>
+
+                    <div class="upload-zone template-upload-box" id="template-drop-zone" role="button" tabindex="0" aria-controls="template-input" aria-describedby="template-upload-help">
+                        <div class="upload-icon coral-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 14v5h14v-5"/></svg>
+                        </div>
+                        <div class="upload-copy">
+                            <h4>Drop your frame files here</h4>
+                            <p id="template-upload-help">Transparent PNG · Portrait and/or landscape · Up to 25 MB</p>
+                        </div>
+                        <span class="browse-label">Browse files</span>
+                        <input type="file" id="template-input" class="visually-hidden" multiple accept="image/png,.png">
+                    </div>
+                    <p class="upload-status" id="template-status" role="status" aria-live="polite">Waiting for your frames.</p>
+
+                    <div class="template-manager" id="template-manager" aria-label="Loaded templates">
+                        <article class="template-card is-empty" id="landscape-template-card">
+                            <div class="template-preview-wrap">
+                                <img id="landscape-template-preview" alt="Landscape template preview">
+                                <span class="template-placeholder" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="m6 15 4-4 3 3 2-2 3 3"/></svg>
+                                </span>
+                            </div>
+                            <div class="template-card-content">
+                                <span class="orientation-label">Wide format</span>
+                                <h4>Landscape frame</h4>
+                                <p id="landscape-template-meta">Not added yet</p>
+                                <div class="template-card-actions">
+                                    <button type="button" class="template-action" data-replace-template="landscape">Add</button>
+                                    <button type="button" class="template-action danger" data-remove-template="landscape" disabled>Remove</button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="template-card is-empty" id="portrait-template-card">
+                            <div class="template-preview-wrap portrait-preview">
+                                <img id="portrait-template-preview" alt="Portrait template preview">
+                                <span class="template-placeholder" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="m8 17 3-4 2 2 2-3 2 3"/></svg>
+                                </span>
+                            </div>
+                            <div class="template-card-content">
+                                <span class="orientation-label">Tall format</span>
+                                <h4>Portrait frame</h4>
+                                <p id="portrait-template-meta">Not added yet</p>
+                                <div class="template-card-actions">
+                                    <button type="button" class="template-action" data-replace-template="portrait">Add</button>
+                                    <button type="button" class="template-action danger" data-remove-template="portrait" disabled>Remove</button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <div class="panel-divider" aria-hidden="true"></div>
+
+                <section class="tool-section" aria-labelledby="photos-heading">
+                    <div class="tool-section-heading">
+                        <span class="tool-section-number violet-number">2</span>
+                        <div>
+                            <h3 id="photos-heading">Add the photos to frame</h3>
+                            <p>We will match each photo with the frame of the same orientation.</p>
+                        </div>
+                    </div>
+
+                    <div id="drop-zone" class="upload-zone photo-upload-zone locked" role="button" tabindex="0" aria-disabled="true" aria-controls="file-input" aria-describedby="photo-upload-help">
+                        <div class="upload-icon violet-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m4 17 5-5 4 4 2-2 5 4"/></svg>
+                        </div>
+                        <div class="upload-copy">
+                            <h4>Drop all your photos here</h4>
+                            <p id="photo-upload-help">JPG or PNG · Up to 100 photos · 50 MB each</p>
+                        </div>
+                        <span class="browse-label">Browse photos</span>
+                        <input type="file" id="file-input" class="visually-hidden" multiple accept="image/jpeg,image/png,.jpg,.jpeg,.png">
+                    </div>
+                </section>
+
+                <div id="status-area" class="main-status" role="status" aria-live="polite"></div>
+                <progress id="progress-bar" value="0" max="100" aria-label="Processing progress" hidden></progress>
+
+                <section class="preview-container" aria-labelledby="gallery-title" hidden>
+                    <div class="gallery-heading">
+                        <div>
+                            <span class="tool-section-number mint-number">3</span>
+                            <h3 id="gallery-title" hidden>Review your matches</h3>
+                        </div>
+                    </div>
+                    <div class="gallery-toolbar" id="gallery-toolbar">
+                        <label class="select-all-control">
+                            <input type="checkbox" id="select-all-photos">
+                            <span>Select all</span>
+                        </label>
+                        <span class="selection-count" id="selection-count">0 selected</span>
+                        <div class="toolbar-spacer"></div>
+                        <label class="compact-field">
+                            <span>Sort</span>
+                            <select id="photo-sort">
+                                <option value="added">Added order</option>
+                                <option value="name">Filename</option>
+                                <option value="orientation">Orientation</option>
+                            </select>
+                        </label>
+                        <button type="button" class="toolbar-button" id="reset-selected" disabled>
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6"/></svg>
+                            Reset edits
+                        </button>
+                        <button type="button" class="toolbar-button danger" id="remove-selected" disabled>
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"/></svg>
+                            Remove
+                        </button>
+                    </div>
+                    <div id="preview-gallery"></div>
+                </section>
+
+                <div class="export-bar">
+                    <div class="export-heading">
+                        <div class="export-copy">
+                            <span class="export-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14"/></svg>
+                            </span>
+                            <div><strong>Export your finished batch</strong><small>Choose the output settings, then download everything in one ZIP.</small></div>
+                        </div>
+                        <div class="controls">
+                            <button id="reset-btn" class="button button-secondary" disabled>
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6"/></svg>
+                                Clear photos
+                            </button>
+                            <button id="generate-btn" class="button button-primary" disabled>
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14"/></svg>
+                                Download ZIP
+                            </button>
+                        </div>
+                    </div>
+                    <div class="export-settings">
+                        <label class="export-field">
+                            <span>Format</span>
+                            <select id="export-format">
+                                <option value="jpeg">JPG</option>
+                                <option value="png">PNG</option>
+                            </select>
+                        </label>
+                        <label class="export-field">
+                            <span>Resolution</span>
+                            <select id="export-resolution">
+                                <option value="photo">Best from photo</option>
+                                <option value="frame">Frame dimensions</option>
+                                <option value="social">2048 px long edge</option>
+                            </select>
+                        </label>
+                        <label class="export-field">
+                            <span>File naming</span>
+                            <select id="naming-pattern">
+                                <option value="original">Original name + framed</option>
+                                <option value="sequence">framori_001</option>
+                            </select>
+                        </label>
+                        <label class="export-field zip-field">
+                            <span>ZIP filename</span>
+                            <input type="text" id="zip-name" value="framori-export" maxlength="80" spellcheck="false">
+                        </label>
+                        <label class="export-field quality-field">
+                            <span>JPG quality <output id="quality-value" for="export-quality">92%</output></span>
+                            <input type="range" id="export-quality" min="70" max="100" value="92" step="1">
+                        </label>
+                    </div>
                 </div>
+
+                <canvas id="canvas" hidden></canvas>
             </div>
-            
-            <div id="status-area"></div>
-            <progress id="progress-bar" value="0" max="100" style="display: none;"></progress>
+        </section>
 
-            <div class="controls">
-                <button id="reset-btn" class="btn-secondary"><i class="fas fa-undo"></i> Clear Photos</button>
-                <button id="generate-btn" class="btn-primary" disabled><i class="fas fa-download"></i> Generate High-Res .ZIP</button>
+        <section class="privacy-section" id="privacy" aria-labelledby="privacy-title">
+            <div class="privacy-visual" aria-hidden="true">
+                <div class="shield-ring"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.9 8.8 7 10 4.1-1.2 7-5.4 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
             </div>
-
-            <div class="preview-container">
-                <h2 id="gallery-title" style="display: none;">Live Preview</h2>
-                <div id="preview-gallery"></div>
+            <div class="privacy-copy">
+                <p class="section-kicker light">Privacy by default</p>
+                <h2 id="privacy-title">Your photos never leave your device.</h2>
+                <p>Framori processes frames, photos, and exports inside your browser. There is no account, cloud library, or hidden upload running behind the workspace.</p>
+                <ul>
+                    <li><span></span>No account or personal information</li>
+                    <li><span></span>No photo storage after you close the tab</li>
+                    <li><span></span>No server needed to create your ZIP</li>
+                </ul>
             </div>
+        </section>
+    </main>
 
-            <canvas id="canvas" style="display: none;"></canvas>
-        </div> 
-        <footer class="site-footer">
-            <p>Designed & Developed by <strong>BRYAN JHADE EBUAN</strong> | &copy; 2026</p>
-        </footer>
+    <dialog class="photo-editor" id="photo-editor" aria-labelledby="editor-title">
+        <div class="editor-header">
+            <div>
+                <p class="section-kicker">Photo editor</p>
+                <h2 id="editor-title">Adjust your crop</h2>
+                <p id="editor-file-name"></p>
+            </div>
+            <button type="button" class="icon-button" id="close-editor" aria-label="Close photo editor">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+            </button>
+        </div>
+        <div class="editor-body">
+            <div class="editor-stage">
+                <canvas id="editor-canvas" tabindex="0" aria-label="Photo crop preview. Drag to reposition, or use the arrow keys."></canvas>
+                <p><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 9 5 12l3 3m8-6 3 3-3 3M9 8l3-3 3 3m-6 8 3 3 3-3"/></svg> Drag the photo to reposition it</p>
+            </div>
+            <div class="editor-controls">
+                <fieldset class="editor-control-group">
+                    <legend>Crop mode</legend>
+                    <div class="segmented-control">
+                        <button type="button" data-fit-mode="cover" class="is-selected">Fill frame</button>
+                        <button type="button" data-fit-mode="contain">Fit photo</button>
+                    </div>
+                </fieldset>
+                <label class="editor-control-group zoom-control">
+                    <span><strong>Zoom</strong><output id="zoom-value" for="crop-zoom">100%</output></span>
+                    <input type="range" id="crop-zoom" min="1" max="3" value="1" step="0.01">
+                </label>
+                <div class="editor-control-group">
+                    <strong>Rotation</strong>
+                    <div class="editor-button-row">
+                        <button type="button" id="rotate-left">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V3m0 0h5M4 3l4 4a8 8 0 1 1-2 8"/></svg>
+                            Left
+                        </button>
+                        <button type="button" id="rotate-right">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 8V3m0 0h-5m5 0-4 4a8 8 0 1 0 2 8"/></svg>
+                            Right
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="reset-edit-button" id="reset-edit">Reset all adjustments</button>
+            </div>
+        </div>
+        <div class="editor-footer">
+            <p>Changes are applied only inside this browser session.</p>
+            <button type="button" class="button button-primary" id="apply-edit">Apply changes</button>
+        </div>
+    </dialog>
 
-    </div> <script src="script.js"></script>
+    <footer class="site-footer">
+        <div class="footer-brand">
+            <span class="brand-mark small" aria-hidden="true"><svg viewBox="0 0 64 64"><path class="mark-back" d="M14 17h27a6 6 0 0 1 6 6v23H20a6 6 0 0 1-6-6Z"/><path class="mark-front" d="M23 12h27v23a6 6 0 0 1-6 6H17V18a6 6 0 0 1 6-6Z"/><circle cx="43" cy="19" r="3"/></svg></span>
+            <div><strong>Framori</strong><small>Batch photo framing, made simple.</small></div>
+        </div>
+        <p>Built and designed by <strong>BRYAN JHADE EBUAN</strong></p>
+        <p class="copyright">&copy; 2026 Framori · <a href="https://github.com/codebyjhade/layout-generator" target="_blank" rel="noreferrer">Source on GitHub</a></p>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
